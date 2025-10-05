@@ -18,6 +18,10 @@ export default function DesignTypeScreen(): JSX.Element {
     return null;
   }
 
+  const handleCustomizePress = () => {
+    router.push('/customizeDesign');
+  };
+
   return (
     <LinearGradient colors={['#f8f9fa', '#e0eafc']} style={styles.gradientBackground}>
       <SafeAreaView style={{ flex: 1 }}>
@@ -32,7 +36,11 @@ export default function DesignTypeScreen(): JSX.Element {
             </View>
 
             <View style={styles.buttonContainer}>
-              <TouchableOpacity style={styles.choiceButtonShadow} activeOpacity={0.8}>
+              <TouchableOpacity 
+                style={styles.choiceButtonShadow} 
+                activeOpacity={0.8}
+                onPress={handleCustomizePress}
+              >
                 <LinearGradient
                   colors={['#ffecd2', '#fcb69f']}
                   start={{ x: 0, y: 0 }}
@@ -46,6 +54,7 @@ export default function DesignTypeScreen(): JSX.Element {
 
               <TouchableOpacity style={styles.choiceButtonShadow} activeOpacity={0.8}>
                 <LinearGradient
+                  // THE FIX: Added a '#' to the first color string
                   colors={['#d4e4ff', '#a5c4ff']}
                   start={{ x: 0, y: 0 }}
                   end={{ x: 1, y: 1 }}
@@ -58,7 +67,6 @@ export default function DesignTypeScreen(): JSX.Element {
             </View>
           </View>
 
-          {/* Bottom Navigation Bar */}
           <View style={styles.navBar}>
             <TouchableOpacity style={styles.navButton} onPress={() => router.back()}>
               <Feather name="arrow-left" size={24} color="#485162" />
