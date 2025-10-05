@@ -5,13 +5,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
+import { useOrder } from '../context/OrderContext'; // 1. Import the hook
 
 export default function CustomerDetailsScreen(): JSX.Element {
   const router = useRouter();
+  const { updateOrderDetails } = useOrder(); // 2. Get the update function
+
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [address, setAddress] = useState('');
-  // State to hold validation errors
   const [errors, setErrors] = useState<{ name?: string; phone?: string; address?: string }>({});
 
   const [fontsLoaded] = useFonts({
@@ -19,37 +21,34 @@ export default function CustomerDetailsScreen(): JSX.Element {
     'Poppins-Regular': require('../../assets/fonts/Poppins-Regular.ttf'),
   });
 
-  // Validation logic
   const handleNextPress = () => {
     const newErrors: { name?: string; phone?: string; address?: string } = {};
     
-    if (!name.trim()) {
-      newErrors.name = 'Full Name is required.';
-    }
+    if (!name.trim()) newErrors.name = 'Full Name is required.';
     if (!phone.trim()) {
       newErrors.phone = 'Phone Number is required.';
-    } else if (!/^\d{10}$/.test(phone)) { // Simple 10-digit phone validation
+    } else if (!/^\d{10}$/.test(phone)) {
       newErrors.phone = 'Please enter a valid 10-digit phone number.';
     }
-    if (!address.trim()) {
-      newErrors.address = 'Full Address is required.';
-    }
+    if (!address.trim()) newErrors.address = 'Full Address is required.';
 
     setErrors(newErrors);
 
-    // If there are no errors, navigate to the next screen
     if (Object.keys(newErrors).length === 0) {
-      router.push('/(app)/designType');
+      // 3. Save data to context before navigating
+      updateOrderDetails({
+        customerName: name,
+        customerPhone: phone,
+        customerAddress: address,
+      });
+      router.push('/designType');
     }
   };
 
-  if (!fontsLoaded) {
-    return null;
-  }
+  if (!fontsLoaded) return null;
 
   return (
     <LinearGradient 
-      // Use the same beautiful gradient as the login screen
       colors={['#a5c4ff', '#fcb69f']} 
       style={styles.gradientBackground}
     >
@@ -115,13 +114,11 @@ export default function CustomerDetailsScreen(): JSX.Element {
               </View>
             </View>
 
-            {/* Redesigned Bottom Navbar with Back and Next */}
             <View style={styles.navBar}>
               <TouchableOpacity style={styles.navButton} onPress={() => router.back()}>
                 <Feather name="arrow-left" size={24} color="#485162" />
                 <Text style={styles.navText}>Back</Text>
               </TouchableOpacity>
-
               <TouchableOpacity style={styles.navButton} onPress={handleNextPress}>
                 <Text style={styles.navText}>Next</Text>
                 <Feather name="arrow-right" size={24} color="#485162" />
@@ -151,17 +148,15 @@ const styles = StyleSheet.create({
   tagline: {
     fontSize: 16,
     fontFamily: 'Poppins-Regular',
-    color: '#444', // Slightly darker for better contrast
+    color: '#444',
     textAlign: 'center',
     marginBottom: 30,
   },
-  form: {
-    // No margin needed here as it's handled by input container
-  },
+  form: {},
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // Slightly transparent white
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
     borderRadius: 15,
     marginTop: 15,
     borderWidth: 1,
@@ -201,7 +196,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between', 
     borderTopWidth: 1,
-    borderTopColor: 'rgba(255, 255, 255, 0.5)', // Subtle white border
+    borderTopColor: 'rgba(255, 255, 255, 0.5)',
   },
   navButton: {
     flexDirection: 'row',
