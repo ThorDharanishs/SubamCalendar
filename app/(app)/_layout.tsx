@@ -15,6 +15,9 @@ export default function AppLayout() {
         <Stack.Screen name="customizeDesign" options={{ headerShown: false }} />
         <Stack.Screen name="customizeDesignQuantity" options={{ headerShown: false }} />
         <Stack.Screen name="orderSummary" options={{ headerShown: false }} />
+        <Stack.Screen name="viewOrders" options={{ headerShown: false }} />
+        <Stack.Screen name="editCustomizeOptions" options={{ headerShown: false }} />
+        <Stack.Screen name="editSelection" options={{ headerShown: false }} />
       </Stack>
     </OrderProvider>
   );
