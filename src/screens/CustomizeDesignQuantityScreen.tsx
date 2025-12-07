@@ -7,14 +7,16 @@ import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
 import { doc, getDoc } from 'firebase/firestore';
 import { db } from '../../firebaseConfig';
+import { useOrder } from '../context/OrderContext';
 
 type QuantityOptions = {
   list: number[];
-  wrapperMap: { [key: number]: number[] };
+  wrapperMap: { [key: string]: number[] }; // Keys in Firestore maps are strings
 };
 
 export default function CustomizeDesignQuantityScreen(): JSX.Element {
   const router = useRouter();
+  const { updateOrderDetails } = useOrder();
   
   const [options, setOptions] = useState<QuantityOptions | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
@@ -51,7 +53,8 @@ export default function CustomizeDesignQuantityScreen(): JSX.Element {
   // Effect to update wrapper options when quantity changes
   useEffect(() => {
     if (selectedQuantity && options) {
-      setWrapperOptions(options.wrapperMap[selectedQuantity] || []);
+      // Use string key to access map property
+      setWrapperOptions(options.wrapperMap[String(selectedQuantity)] || []);
       setSelectedWrapper(null); // Reset wrapper selection
     } else {
       setWrapperOptions([]);
@@ -72,8 +75,12 @@ export default function CustomizeDesignQuantityScreen(): JSX.Element {
       );
       return;
     }
-    // Navigate to the next screen
-    router.push('/orderSummary'); // Replace with your next screen's route
+    // Save data to context before navigating
+    updateOrderDetails({
+      quantity: selectedQuantity,
+      wrapper: selectedWrapper,
+    });
+    router.push('/orderSummary');
   };
 
   if (!fontsLoaded) return null;
@@ -94,7 +101,6 @@ export default function CustomizeDesignQuantityScreen(): JSX.Element {
     );
   }
 
-  // Dropdown component with corrected logic
   const Dropdown = ({ type, label, value, onOpen, options, disabled = false }: { type: 'quantity' | 'wrapper', label: string; value: number | null; onOpen: () => void; options: number[]; disabled?: boolean }) => (
     <>
       <Text style={[styles.label, disabled && styles.disabledText]}>{label}</Text>
@@ -143,7 +149,6 @@ export default function CustomizeDesignQuantityScreen(): JSX.Element {
             <Text style={styles.tagline}>Select your order quantity and wrapper</Text>
             
             <View style={styles.form}>
-              {/* Corrected Dropdown calls with 'type' prop */}
               <Dropdown type="quantity" label="Quantity" value={selectedQuantity} onOpen={() => setDropdownVisible('quantity')} options={options?.list || []} />
               <Dropdown type="wrapper" label="Customize Wrapper" value={selectedWrapper} onOpen={() => setDropdownVisible('wrapper')} options={wrapperOptions} disabled={!selectedQuantity} />
             </View>

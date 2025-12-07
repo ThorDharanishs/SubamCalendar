@@ -1,12 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Linking, Image, StatusBar } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Image, StatusBar } from "react-native";
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFonts } from 'expo-font';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useRouter } from "expo-router"; // Import the router hook
+import { useRouter } from "expo-router";
+import { Feather } from '@expo/vector-icons';
 
 export default function HomeScreen(): JSX.Element {
-  const router = useRouter(); // Initialize the router
+  const router = useRouter();
 
   const [fontsLoaded] = useFonts({
     'Poppins-Bold': require('../../assets/fonts/Poppins-Bold.ttf'),
@@ -19,7 +20,6 @@ export default function HomeScreen(): JSX.Element {
 
   return (
     <LinearGradient
-      // Use the same beautiful gradient as the login screen
       colors={['#a5c4ff', '#fcb69f']} 
       style={styles.gradientBackground}
     >
@@ -39,12 +39,12 @@ export default function HomeScreen(): JSX.Element {
           />
         </View>
 
+        {/* --- THREE ACTION BUTTONS --- */}
         <View style={styles.actionArea}>
-          <Text style={styles.contact}>Contact: +91 98765 43210</Text>
+          {/* Button to Start a New Order */}
           <TouchableOpacity
             style={styles.buttonShadow}
-            // This line tells the app to go to the '/details' page when pressed
-            onPress={() => router.push('/(app)/details')}
+            onPress={() => router.push('/details')}
             activeOpacity={0.8}
           >
             <LinearGradient
@@ -53,7 +53,42 @@ export default function HomeScreen(): JSX.Element {
               end={{ x: 1, y: 1 }}
               style={styles.button}
             >
-              <Text style={styles.buttonText}>Start Your Order</Text>
+              <Feather name="plus-circle" size={22} color="#fff" />
+              <Text style={styles.buttonText}>New Order</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+          
+          {/* Button to View Orders */}
+          <TouchableOpacity
+            style={[styles.buttonShadow, { shadowColor: '#343a40', marginTop: 20 }]}
+            onPress={() => router.push('/viewOrders')}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#6c757d', '#343a40']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.button}
+            >
+              <Feather name="list" size={22} color="#fff" />
+              <Text style={styles.buttonText}>View Orders</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+
+          {/* --- Button to Edit an Item --- */}
+          <TouchableOpacity
+            style={[styles.buttonShadow, { shadowColor: '#ffc107', marginTop: 20 }]}
+            onPress={() => router.push('/editSelection')}
+            activeOpacity={0.8}
+          >
+            <LinearGradient
+              colors={['#ffc107', '#ff8f07']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.button}
+            >
+              <Feather name="edit" size={22} color="#fff" />
+              <Text style={styles.buttonText}>Edit Item</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
@@ -62,29 +97,23 @@ export default function HomeScreen(): JSX.Element {
   );
 }
 
-// Styles remain the same
 const styles = StyleSheet.create({
-  gradientBackground: {
-    flex: 1,
-  },
+  gradientBackground: { flex: 1 },
   container: {
     flex: 1,
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingBottom: 40,
+    paddingVertical: 30,
   },
   header: {
     alignItems: 'center',
-    marginTop: 20,
   },
   title: {
-    marginTop:30,
     fontSize: 32,
     fontFamily: 'Poppins-Bold',
     color: '#1a253a',
     textAlign: 'center',
-    lineHeight: 40,
   },
   subtitle: {
     fontSize: 20,
@@ -99,17 +128,14 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   imageContainer: {
-    width: 280,
-    height: 280,
+    width: 200,
+    height: 200, 
     borderRadius: 20,
     backgroundColor: '#ffffff',
     justifyContent: 'center',
     alignItems: 'center',
     shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 10,
-    },
+    shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.15,
     shadowRadius: 25,
     elevation: 18,
@@ -122,20 +148,11 @@ const styles = StyleSheet.create({
   actionArea: {
     width: '100%',
     alignItems: 'center',
-    marginBottom: 20,
-  },
-  contact: {
-    fontSize: 14,
-    fontFamily: 'Poppins-Regular',
-    color: "#444",
-    marginBottom: 20,
   },
   buttonShadow: {
+    width: '90%',
     shadowColor: "#4facfe",
-    shadowOffset: {
-      width: 0,
-      height: 8,
-    },
+    shadowOffset: { width: 0, height: 8 },
     shadowOpacity: 0.4,
     shadowRadius: 15,
     elevation: 12,
@@ -143,15 +160,16 @@ const styles = StyleSheet.create({
   },
   button: {
     paddingVertical: 15,
-    paddingHorizontal: 50,
     borderRadius: 30,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
   },
   buttonText: {
     color: "#fff",
     fontFamily: 'Poppins-Bold',
     fontSize: 18,
+    marginLeft: 10,
   },
 });
 

@@ -1,15 +1,13 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { Feather, Ionicons } from '@expo/vector-icons';
-import { useOrder } from '../context/OrderContext';
 
-export default function DesignTypeScreen(): JSX.Element {
+export default function EditSelectionScreen(): JSX.Element {
   const router = useRouter();
-  const { updateOrderDetails } = useOrder();
 
   const [fontsLoaded] = useFonts({
     'Poppins-Bold': require('../../assets/fonts/Poppins-Bold.ttf'),
@@ -20,58 +18,36 @@ export default function DesignTypeScreen(): JSX.Element {
     return null;
   }
 
-  const handleSelectDesign = (type: 'Customize' | 'Readymade') => {
-    // Save the user's choice to the global order state
-    updateOrderDetails({ designType: type });
-
-    // Navigate to the next appropriate screen
-    if (type === 'Customize') {
-      router.push('/customizeDesign');
-    } else {
-      // The flow for "Readymade" is not yet built, so we show an alert.
-      Alert.alert("Coming Soon", "The Readymade Mixed Design flow is not yet available.");
-    }
-  };
-
   return (
     <LinearGradient colors={['#f8f9fa', '#e0eafc']} style={styles.gradientBackground}>
       <SafeAreaView style={{ flex: 1 }}>
-        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+        <StatusBar barStyle="dark-content" />
         <View style={styles.container}>
           
           <View style={styles.mainContent}>
             <View style={styles.header}>
-              <Text style={styles.title}>SUBAM CALENDARS</Text>
-              <Text style={styles.subtitle}>KANGEYAM</Text>
-              <Text style={styles.tagline}>Crafting Your Perfect Calendar</Text>
+              <Text style={styles.title}>Edit Items</Text>
+              <Text style={styles.tagline}>Select which category you want to edit</Text>
             </View>
 
             <View style={styles.buttonContainer}>
               <TouchableOpacity 
                 style={styles.choiceButtonShadow} 
                 activeOpacity={0.8}
-                onPress={() => handleSelectDesign('Customize')}
+                onPress={() => router.push('/editCustomizeOptions')}
               >
                 <LinearGradient
                   colors={['#ffecd2', '#fcb69f']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
                   style={styles.choiceButton}
                 >
                   <Feather name="edit" size={24} color="#a0522d" />
-                  <Text style={[styles.choiceButtonText, { color: '#a0522d' }]}>Customize Design</Text>
+                  <Text style={[styles.choiceButtonText, { color: '#a0522d' }]}>Customize Design Options</Text>
                 </LinearGradient>
               </TouchableOpacity>
 
-              <TouchableOpacity 
-                style={styles.choiceButtonShadow} 
-                activeOpacity={0.8}
-                onPress={() => handleSelectDesign('Readymade')}
-              >
+              <TouchableOpacity style={styles.choiceButtonShadow} activeOpacity={0.8}>
                 <LinearGradient
                   colors={['#d4e4ff', '#a5c4ff']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
                   style={styles.choiceButton}
                 >
                   <Ionicons name="calendar-outline" size={24} color="#2952a3" />
@@ -81,7 +57,6 @@ export default function DesignTypeScreen(): JSX.Element {
             </View>
           </View>
 
-          {/* Bottom Navigation Bar */}
           <View style={styles.navBar}>
             <TouchableOpacity style={styles.navButton} onPress={() => router.back()}>
               <Feather name="arrow-left" size={24} color="#485162" />
@@ -116,14 +91,8 @@ const styles = StyleSheet.create({
     color: '#1a253a',
     textAlign: 'center',
   },
-  subtitle: {
-    fontSize: 20,
-    fontFamily: 'Poppins-Regular',
-    color: '#485162',
-    marginTop: 4,
-  },
   tagline: {
-    fontSize: 16,
+    fontSize: 18,
     fontFamily: 'Poppins-Regular',
     color: "#777",
     marginTop: 8,
@@ -173,4 +142,3 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 });
-

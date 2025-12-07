@@ -5,7 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFonts } from 'expo-font';
 import { useRouter } from 'expo-router';
 import { Feather } from '@expo/vector-icons';
-import { useOrder } from '../context/OrderContext'; // CORRECTED PATH
+import { useOrder } from '../context/OrderContext';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { db, auth } from '../../firebaseConfig';
 
@@ -15,6 +15,8 @@ export default function OrderSummaryScreen(): JSX.Element {
   
   const [transportNeeded, setTransportNeeded] = useState(false);
   const [transportFee, setTransportFee] = useState('');
+  // --- NEW STATE for Packing Charge ---
+  const [packingCharge, setPackingCharge] = useState('');
   const [gstPercent, setGstPercent] = useState('');
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
 
@@ -23,21 +25,24 @@ export default function OrderSummaryScreen(): JSX.Element {
     'Poppins-Regular': require('../../assets/fonts/Poppins-Regular.ttf'),
   });
 
-  // Perform price calculations
+  // --- UPDATED Price Calculation ---
   const { calendarPrice, gstAmount, totalAmount } = useMemo(() => {
     const quantity = orderDetails.quantity || 0;
     const wrapper = orderDetails.wrapper || 0;
     const fee = parseFloat(transportFee) || 0;
+    const packing = parseFloat(packingCharge) || 0; // Get packing charge
     const gst = parseFloat(gstPercent) || 0;
 
     const calendarPrice = quantity * wrapper;
-    const subtotal = calendarPrice + (transportNeeded ? fee : 0);
+    // Add packing charge to the subtotal before GST
+    const subtotal = calendarPrice + (transportNeeded ? fee : 0) + packing;
     const gstAmount = subtotal * (gst / 100);
     const totalAmount = subtotal + gstAmount;
     
     return { calendarPrice, gstAmount, totalAmount };
-  }, [orderDetails, transportNeeded, transportFee, gstPercent]);
+  }, [orderDetails, transportNeeded, transportFee, packingCharge, gstPercent]); // Added packingCharge dependency
 
+  // --- UPDATED handlePlaceOrder function ---
   const handlePlaceOrder = async () => {
     setIsPlacingOrder(true);
     try {
@@ -49,6 +54,7 @@ export default function OrderSummaryScreen(): JSX.Element {
           calendarPrice,
           transportNeeded,
           transportFee: transportNeeded ? (parseFloat(transportFee) || 0) : 0,
+          packingCharge: parseFloat(packingCharge) || 0, // Save packing charge
           gstPercent: parseFloat(gstPercent) || 0,
           gstAmount,
           totalAmount,
@@ -56,12 +62,11 @@ export default function OrderSummaryScreen(): JSX.Element {
         status: 'Pending',
       };
 
-      // Add a new document with a generated ID
       await addDoc(collection(db, "orders"), orderData);
 
       Alert.alert("Success", "Your order has been placed successfully!");
-      resetOrder(); // Clear the order context
-      router.replace('/(app)'); // Navigate back to home
+      resetOrder();
+      router.replace('/(app)');
       
     } catch (error) {
       console.error("Error placing order: ", error);
@@ -141,6 +146,19 @@ export default function OrderSummaryScreen(): JSX.Element {
                   />
                 </View>
               )}
+              
+              {/* --- NEW INPUT FIELD for Packing Charge --- */}
+              <View style={styles.inputContainer}>
+                <Feather name="package" size={20} color="#999" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Packing Charge"
+                  value={packingCharge}
+                  onChangeText={setPackingCharge}
+                  placeholderTextColor="#999"
+                  keyboardType="numeric"
+                />
+              </View>
 
               <View style={styles.inputContainer}>
                 <Feather name="percent" size={20} color="#999" style={styles.inputIcon} />
@@ -195,7 +213,6 @@ export default function OrderSummaryScreen(): JSX.Element {
   );
 }
 
-// Styles are extensive, so they are provided below
 const styles = StyleSheet.create({
   gradientBackground: { flex: 1 },
   container: {
@@ -207,7 +224,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     color: '#1a253a',
     textAlign: 'center',
-    marginTop: 20, // Reduced margin
+    marginTop: 20,
   },
   tagline: {
     fontSize: 18,
@@ -348,8 +365,8 @@ const styles = StyleSheet.create({
     height: 80,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-start', // Only show back button
-    backgroundColor: '#f8f9fa',
+    justifyContent: 'flex-start',
+    backgroundColor: 'rgba(248, 249, 250, 0.8)',
     borderTopWidth: 1,
     borderTopColor: '#e0eafc',
     paddingHorizontal: 20,
